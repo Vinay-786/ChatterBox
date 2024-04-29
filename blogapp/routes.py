@@ -15,7 +15,7 @@ from blogapp.models import User, Post
 def hello_world():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=5)
-    return render_template('home.html', posts=posts)
+    return render_template('home-experimental.html', posts=posts)
 
 
 @app.route("/about")
