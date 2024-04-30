@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!DOCTYPE html>
   <style>
     .card-body {
       padding: 1rem;
@@ -39,7 +38,10 @@
       <p class="card-text post-content">{{ post.content }}</p>
       <div class="btn-group">
         <button type="button" class="btn btn-light">
-          <i class="bi bi-heart"></i> Like
+          <i class="bi bi-heart"></i> Upvotes
+        </button>
+        <button type="button" class="btn btn-light">
+          <i class="bi bi-heart"></i> Downvotes
         </button>
         <button type="button" class="btn btn-light">
           <i class="bi bi-chat"></i> Comment
