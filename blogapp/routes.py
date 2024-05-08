@@ -6,8 +6,8 @@ from flask import render_template, request, url_for, flash, redirect, abort
 from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.datastructures import auth
 from blogapp import app, db, bcrypt
-from blogapp.forms import RegistrationForm, LoginForm, UpdateAccountForm, PostForm
-from blogapp.models import User, Post
+from blogapp.forms import CommentForm, RegistrationForm, LoginForm, UpdateAccountForm, PostForm
+from blogapp.models import Comment, User, Post
 
 
 @app.route("/")
@@ -106,6 +106,18 @@ def new_post():
         return redirect(url_for('hello_world'))
     return render_template('create_post.html', title='New Post', form=form, legend='Update Post')
 
+@app.route("/comment/<int:post_id>", methods=['GET', 'POST'])
+@login_required
+def post_comment(post_id):
+    total_comment = Comment.query.filter_by(post_id=post_id).all()
+    comment_box = CommentForm()
+    if comment_box.validate_on_submit():
+        comment = Comment(content=comment_box.content.data, post_id=post_id, cauthor=current_user)
+        db.session.add(comment)
+        db.session.commit()
+        flash('Your comment has been created!', 'success')
+        return redirect(url_for('post_comment', post_id=post_id))
+    return render_template('comments.html',form=comment_box, comments=total_comment, legend="Comment")
 
 @app.route("/post/<int:post_id>")
 def post(post_id):
@@ -154,6 +166,3 @@ def user_posts(username):
             .paginate(page=page, per_page=5)
     return render_template('user_posts.html', posts=posts, user=user)
 
-@app.route("/albumlog", methods=['GET'])
-def albumlog():
-    return render_template('albumlog.html')

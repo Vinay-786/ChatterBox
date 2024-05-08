@@ -35,6 +35,7 @@
           <p class="card-text text-muted"> {{ post.date_posted.strftime('%Y-%m-%d') }}</p>
         </div>
       </div>
+      <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
       <p class="card-text post-content">{{ post.content }}</p>
       <div class="btn-group">
         <button type="button" class="btn btn-light">
@@ -44,7 +45,9 @@
           <i class="bi bi-heart"></i> Downvotes
         </button>
         <button type="button" class="btn btn-light">
-          <i class="bi bi-chat"></i> Comment
+          <i class="bi bi-chat">
+              <a href=" {{ url_for('post_comment', post_id=post.id) }}">Comment</a>
+          </i>
         </button>
         <button type="button" class="btn btn-light">
           <i class="bi bi-share"></i> Share
