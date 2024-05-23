@@ -7,7 +7,7 @@ from flask_login import login_user, current_user, logout_user, login_required
 from werkzeug.datastructures import auth
 from blogapp import app, db, bcrypt
 from blogapp.forms import CommentForm, RegistrationForm, LoginForm, UpdateAccountForm, PostForm
-from blogapp.models import Comment, User, Post
+from blogapp.models import Comment, User, Post, Like
 
 
 @app.route("/")
@@ -144,7 +144,6 @@ def update_post(post_id):
     return render_template('create_post.html', title='Update Post', form=form, legend='Update Post')
 
 
-
 @app.route("/post/<int:post_id>/delete", methods=['POST'])
 @login_required
 def delete_post(post_id):
@@ -166,3 +165,25 @@ def user_posts(username):
             .paginate(page=page, per_page=5)
     return render_template('user_posts.html', posts=posts, user=user)
 
+
+@app.route('/upvote/<int:post_id>', methods=['POST'])
+@login_required
+def like(post_id):
+    if current_user.is_authenticated:
+        existing_like = Like.query.filter_by(user_id=current_user.id, post_id=post_id).first()
+        if existing_like:
+            db.session.delete(existing_like)
+            db.session.commit()
+            return "🖤"
+        else:
+            new_like = Like(user_id=current_user.id, post_id=post_id)
+            db.session.add(new_like)
+            db.session.commit()
+            return "❤️"
+    else:
+        flash('Please log in to like this post.', 'info')
+    return redirect(url_for('hello_world'))
+
+@app.route("/test")
+def test():
+    return "hello world"

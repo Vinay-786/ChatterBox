@@ -22,9 +22,29 @@
     .btn-group {
       margin-top: 1rem;
     }
+    a{
+        text-decoration:none
+    }
   </style>
+   <script>
+        function copyLink(button) {
+            const url = button.getAttribute('data-url');
+            const textarea = document.createElement('textarea');
+            textarea.value = url;
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                const successful = document.execCommand('copy');
+                const msg = successful ? 'successful' : 'unsuccessful';
+                alert('Copying link was ' + msg);
+            } catch (err) {
+                alert('Oops, unable to copy');
+            }
+            document.body.removeChild(textarea);
+        }
+    </script>
 {% for post in posts.items %}
-  <div class="card mb-3">
+  <div class="card mb-3 p-3">
     <div class="card-body">
       <div class="user-info">
         <img src="{{ url_for('static', filename='profile_pics/' + post.author.image_file)}}" alt="Profile Picture" class="user-img">
@@ -38,19 +58,25 @@
       <h2><a class="article-title" href="{{ url_for('post', post_id=post.id) }}">{{ post.title }}</a></h2>
       <p class="card-text post-content">{{ post.content }}</p>
       <div class="btn-group">
+        {% if current_user.is_authenticated %}
+                <button id="myButton"
+                    class="btn btn-light"
+                    hx-post="{{ url_for('like', post_id=post.id) }}"
+                    hx-trigger="click"
+                    hx-swap="innerHTML"
+                    hx-on="htmx:afterRequest: myButton.disabled = false"
+                    >
+                    🤍
+            </button>
+        {% endif %}
         <button type="button" class="btn btn-light">
-          <i class="bi bi-heart"></i> Upvotes
-        </button>
-        <button type="button" class="btn btn-light">
-          <i class="bi bi-heart"></i> Downvotes
-        </button>
-        <button type="button" class="btn btn-light">
-          <i class="bi bi-chat">
               <a href=" {{ url_for('post_comment', post_id=post.id) }}">Comment</a>
-          </i>
         </button>
-        <button type="button" class="btn btn-light">
-          <i class="bi bi-share"></i> Share
+        <button type="button" class="btn btn-light"
+            class="copy-button"
+            onclick="copyLink(this)"
+            data-url="{{ url_for('post', post_id=post.id, _external=True) }}">
+            Share
         </button>
       </div>
     </div>

@@ -1,7 +1,6 @@
 from datetime import datetime
 from blogapp import db, login_manager
 from flask_login import UserMixin
-from sqlalchemy_utils.types.choice import ChoiceType
 
 
 @login_manager.user_loader
@@ -16,6 +15,7 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(60), nullable=False)
     posts = db.relationship('Post', backref='author', lazy=True)
     comments = db.relationship('Comment', backref='cauthor', lazy=True)
+    likes = db.relationship('Like', backref='user', lazy=True)
 
     def __repr__(self):
          return f"User('{self.username}', '{self.email}', '{self.image_file}')"
@@ -26,9 +26,12 @@ class Post(db.Model):
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.now)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    upvotes = db.Column(db.Integer, default=0)
-    downvotes = db.Column(db.Integer, default=0)
     comments = db.relationship('Comment', backref='commentor', lazy=True)
+    likes = db.relationship('Like', backref='post', lazy=True)
+    dislikes = db.relationship('Dislike', backref='post', lazy=True)
+
+    def __repr__(self):
+         return f"Post('{self.title}', '{self.date_posted}')"
 
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -36,6 +39,13 @@ class Comment(db.Model):
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
     content = db.Column(db.Text, nullable=False)
 
+class Like(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
 
-    def __repr__(self):
-         return f"Post('{self.title}', '{self.date_posted}')"
+class Dislike(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
